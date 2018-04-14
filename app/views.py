@@ -18,8 +18,9 @@ import os
 
 @app.route('/')
 def index():
+    form=UploadForm()
     """Render website's initial page and let VueJS take over."""
-    return render_template('index.html')
+    return render_template('index.html', form=form)
 
 @app.route('/api/upload', methods=['POST'])
 def upload():
