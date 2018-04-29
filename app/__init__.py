@@ -1,5 +1,5 @@
 from flask import Flask
-#from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt import JWT
@@ -13,7 +13,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "DATABASE_URL='postgres://powqmcuqjhnjnv
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 db = SQLAlchemy(app)
-#csrf = CSRFProtect(app)
+csrf = CSRFProtect(app)
 
 '''
 # login manager Below
