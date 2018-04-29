@@ -145,8 +145,7 @@ const Profile = Vue.component('profile', {
             fetch("/api/users/"+user_id+"/posts", { 
                 method: 'GET', 
                 headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                    'X-CSRFToken': token
+                    //'X-CSRFToken': token
                 },
                 credentials: 'same-origin'
             })
@@ -264,7 +263,7 @@ const Register = Vue.component('register', {
                 method: 'POST', 
                 body: form_data,
                 headers: {
-                    'X-CSRFToken': token
+                    //'X-CSRFToken': token
                 },
                 credentials: 'same-origin'
             })
@@ -344,8 +343,7 @@ const uploadform= Vue.component('upload-form', {
                 method: 'POST', 
                 body: form_data,
                 headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                    'X-CSRFToken': token
+                    //'X-CSRFToken': token
                 },
                 credentials: 'same-origin'
             })
@@ -426,7 +424,7 @@ const Login = Vue.component('login', {
                 method: 'POST', 
                 body: form_data,
                 headers: {
-                    'X-CSRFToken': token
+                    //'X-CSRFToken': token
                 },
                 credentials: 'same-origin'
             })
@@ -495,8 +493,7 @@ const Explore= Vue.component('explore', {
             fetch('/api/posts', { 
             method: 'GET',
             'headers': {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                'X-CSRFToken': token
+                //'X-CSRFToken': token
             },
                 credentials: 'same-origin'
             })
@@ -520,8 +517,7 @@ const Explore= Vue.component('explore', {
             fetch("/api/users/"+user_id+"/posts", { 
                 method: 'GET', 
                 headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                    'X-CSRFToken': token
+                    //'X-CSRFToken': token
                 },
                 credentials: 'same-origin'
             })

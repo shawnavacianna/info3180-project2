@@ -13,7 +13,7 @@
     <!-- Bootstrap -->
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
     {% block css %} {% endblock%}
   </head>
   <body>
@@ -27,7 +27,6 @@
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vue.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vue-router.js') }}"></script>
-    <script>const token = "{{ csrf_token() }}";</script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     {% block js %} {% endblock%}
   </body>

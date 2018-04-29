@@ -5,7 +5,7 @@ Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
 
-from app import app, filefolder, db, Allowed_Uploads,login_manager
+from app import app, filefolder, db, Allowed_Uploads
 from flask import render_template, request, jsonify, request, redirect, url_for, flash,session, abort, send_from_directory, jsonify, g
 from forms import FirstTimeForm,PostForm,LoginForm
 from models import Profile, Post, Likes, Follows
@@ -23,36 +23,30 @@ import base64
 # Routing for your application.
 ###
 
-def authenticate(f):
-  @wraps(f)
-  def decorated(*args, **kwargs):
-    auth = request.headers.get('Authorization', None)
-    if not auth:
-      return jsonify({'code': 'authorization_header_missing', 'description': 'Authorization header is expected'}), 401
-
-    parts = auth.split()
-
-    if parts[0].lower() != 'bearer':
-      return jsonify({'code': 'invalid_header', 'description': 'Authorization header must start with Bearer'}), 401
-    elif len(parts) == 1:
-      return jsonify({'code': 'invalid_header', 'description': 'Token not found'}), 401
-    elif len(parts) > 2:
-      return jsonify({'code': 'invalid_header', 'description': 'Authorization header must be Bearer + \s + token'}), 401
-
-    token = parts[1]
-    try:
-         payload = jwt.decode(token, app.config['SECRET_KEY'])
-         get_user = Profile.query.filter_by(id=payload['user_id']).first()
-
-    except jwt.ExpiredSignature:
-        return jsonify({'code': 'token_expired', 'description': 'token is expired'}), 401
-    except jwt.DecodeError:
-        return jsonify({'code': 'token_invalid_signature', 'description': 'Token signature is invalid'}), 401
-
-    g.current_user = user = get_user
-    return f(*args, **kwargs)
-
-  return decorated
+def requires_auth(t):
+    @wraps(t)
+    def decorated(*args, **kwargs):
+        
+        auth = request.headers.get('Authorization', None)
+        
+        if not auth:
+            return jsonify({'error': 'Access Denied : No Token Found'}), 401
+        else:
+            try:
+                userdata = jwt.decode(auth.split(" ")[1], app.config['SECRET_KEY'])
+                currentUser = Profile.query.filter_by(username = userdata['user']).first()
+                
+                if currentUser is None:
+                    return jsonify({'error': 'Access Denied'}), 401
+                
+            except jwt.exceptions.InvalidSignatureError as e:
+                print e
+                return jsonify({'error':'Invalid Token'})
+            except jwt.exceptions.DecodeError as e:
+                print e
+                return jsonify({'error': 'Invalid Token'})
+            return t(*args, **kwargs)
+    return decorated
 
 
 
@@ -115,13 +109,13 @@ def login():
     return  jsonify(errors=error)
 
 @app.route("/api/auth/logout",  methods=["GET"])
-@authenticate
+@requires_auth
 def logout():
     g.current_user = None
     return jsonify(message='logout')
 
 @app.route("/api/users/<user_id>/follow", methods=["POST"])
-@authenticate
+@requires_auth
 def follow(user_id):
     if request.method == "POST":
         user= Profile.query.filter_by(user_id=Post.user_id).first()
@@ -162,7 +156,7 @@ def upload(user_id):
     
     
 @app.route('/api/users/<user_id>/posts', methods=['GET'])
-@authenticate
+@requires_auth
 def get_user_post(user_id):
     if request.method == "GET":
         user_posts = Post.query.filter_by(user_id=user_id).all()
@@ -176,8 +170,8 @@ def get_user_post(user_id):
         else:
             return jsonify({'message':'no post found'})
     
- @app.route('/api/posts', methods=['GET'])
-@authenticate
+@app.route('/api/posts', methods=['GET'])
+@requires_auth
 def get_all_post():
     if request.method == 'GET':
         all_posts = Post.query.order_by(Post.created_on).all()
@@ -198,23 +192,6 @@ def get_uploaded_images():
         if file.split('.')[-1] in Allowed_Uploads:
             Images.append(file)
     return Images
-            
-@app.route("/api/users/<user_id>/follow", methods=["POST"])
-@authenticate
-def follow(user_id):
-    if request.method == "POST":
-        user= Profile.query.filter_by(user_id=Post.user_id).first()
-        if user is None:
-            return jsonify({'message':'The user is not found'})
-        elif user == g.current_user:
-            return jsonify({'message':'cannot follow yourself'})
-        else:
-            follower_id=user_id
-            user_id= g.current_user['id']
-            following =Follows(user_id,follower_id)
-            db.session.add(follow)
-            db.session.commit()
-            jsonify({'message':'You are following a user'})
     
         
 @app.route("/secure_page")
@@ -222,16 +199,7 @@ def follow(user_id):
 def secure_page():
     return render_template('secure_page.html')
             
-        
-@app.route("/secure_page")
-@login_required
-def secure_page():
-    return render_template('secure_page.html')    
 
-    
-@login_manager.user_loader
-def load_user(id):
-    return Profile.query.get(int(id))
     
 # Here we define a function to collect form errors from Flask-WTF
 # which we can later use
