@@ -1,2 +1,2 @@
-# INFO3180 Lab 7
-Starter code for Lab 7
+# Photogran
+Share images with your friends across the world.
